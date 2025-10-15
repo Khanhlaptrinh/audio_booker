@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Book Reader - Đọc Truyện Bằng Giọng Nói</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📚 Audio Book Reader</h1>
+            <p>Đọc truyện bằng giọng nói vùng miền</p>
+        </header>
+
+        <!-- Upload Section -->
+        <div id="upload-section" class="upload-section">
+            <div class="upload-card">
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-icon">📁</div>
+                    <h3>Upload Truyện</h3>
+                    <p>Kéo thả file .txt hoặc .epub vào đây</p>
+                    <input type="file" id="file-input" accept=".txt,.epub" hidden>
+                    <button class="upload-btn" onclick="document.getElementById('file-input').click()">
+                        Chọn File
+                    </button>
+                </div>
+                
+                <div class="dialect-selection">
+                    <h4>Chọn Giọng Đọc:</h4>
+                    <div class="dialect-options">
+                        <label class="dialect-option">
+                            <input type="radio" name="dialect" value="north" checked>
+                            <span class="dialect-label">Miền Bắc</span>
+                        </label>
+                        <label class="dialect-option">
+                            <input type="radio" name="dialect" value="central">
+                            <span class="dialect-label">Miền Trung</span>
+                        </label>
+                        <label class="dialect-option">
+                            <input type="radio" name="dialect" value="south">
+                            <span class="dialect-label">Miền Nam</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Book Reader Section -->
+        <div id="book-section" class="book-section" style="display: none;">
+            <div class="book-controls">
+                <div class="book-info">
+                    <h3 id="book-title">Tên Truyện</h3>
+                    <p id="book-progress">Trang 1 / 10</p>
+                </div>
+                <div class="control-buttons">
+                    <button id="play-btn" class="control-btn play">▶️ Phát</button>
+                    <button id="pause-btn" class="control-btn pause" style="display: none;">⏸️ Tạm Dừng</button>
+                    <button id="stop-btn" class="control-btn stop">⏹️ Dừng</button>
+                </div>
+            </div>
+
+            <!-- Book Container -->
+            <div class="book-container">
+                <div class="book" id="book">
+                    <div class="page left-page" id="left-page">
+                        <div class="page-content">
+                            <p id="left-text">Nội dung trang trước...</p>
+                        </div>
+                    </div>
+                    <div class="page right-page" id="right-page">
+                        <div class="page-content">
+                            <p id="right-text">Nội dung trang hiện tại...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audio Player -->
+            <div class="audio-player">
+                <audio id="audio-player" controls style="display: none;">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Đang xử lý file...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

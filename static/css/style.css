@@ -1,0 +1,385 @@
+/* Reset và Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+    color: white;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Upload Section */
+.upload-section {
+    margin-bottom: 40px;
+}
+
+.upload-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.upload-area {
+    border: 3px dashed #667eea;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    border-color: #764ba2;
+    background: #f8f9ff;
+}
+
+.upload-area.dragover {
+    border-color: #764ba2;
+    background: #f0f2ff;
+    transform: scale(1.02);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.upload-area h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.upload-area p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.upload-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+/* Dialect Selection */
+.dialect-selection {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 1px solid #eee;
+}
+
+.dialect-selection h4 {
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.dialect-options {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+.dialect-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 15px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    flex: 1;
+    justify-content: center;
+}
+
+.dialect-option:hover {
+    background: #f8f9ff;
+}
+
+.dialect-option input[type="radio"] {
+    display: none;
+}
+
+.dialect-option input[type="radio"]:checked + .dialect-label {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    transform: scale(1.05);
+}
+
+.dialect-label {
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: block;
+    text-align: center;
+    width: 100%;
+}
+
+/* Book Section */
+.book-section {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    margin-bottom: 40px;
+}
+
+.book-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.book-info h3 {
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.book-info p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.control-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.control-btn.play {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+}
+
+.control-btn.pause {
+    background: linear-gradient(135deg, #FF9800, #F57C00);
+    color: white;
+}
+
+.control-btn.stop {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+    color: white;
+}
+
+.control-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Book Container */
+.book-container {
+    perspective: 1000px;
+    margin: 20px 0;
+}
+
+.book {
+    width: 100%;
+    max-width: 800px;
+    height: 500px;
+    margin: 0 auto;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s ease;
+}
+
+.book.flip {
+    transform: rotateY(-180deg);
+}
+
+.page {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    backface-visibility: hidden;
+    overflow-y: auto;
+}
+
+.left-page {
+    left: 0;
+    border-radius: 10px 0 0 10px;
+}
+
+.right-page {
+    right: 0;
+    border-radius: 0 10px 10px 0;
+    transform: rotateY(180deg);
+}
+
+.page-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.page-content p {
+    line-height: 1.8;
+    font-size: 1.1rem;
+    color: #333;
+    text-align: justify;
+}
+
+/* Audio Player */
+.audio-player {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.audio-player audio {
+    width: 100%;
+    max-width: 500px;
+}
+
+/* Loading */
+.loading {
+    text-align: center;
+    color: white;
+    margin: 40px 0;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .upload-card {
+        padding: 20px;
+    }
+    
+    .dialect-options {
+        flex-direction: column;
+    }
+    
+    .book-controls {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .book {
+        height: 400px;
+    }
+    
+    .page {
+        padding: 20px;
+    }
+    
+    .page-content p {
+        font-size: 1rem;
+    }
+}
+
+/* Page Flip Animation */
+@keyframes pageFlip {
+    0% {
+        transform: rotateY(0deg);
+    }
+    50% {
+        transform: rotateY(-90deg);
+    }
+    100% {
+        transform: rotateY(-180deg);
+    }
+}
+
+.book.flipping {
+    animation: pageFlip 0.6s ease-in-out;
+}
+
+/* Success/Error Messages */
+.message {
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+    font-weight: 500;
+}
+
+.message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}

@@ -1,0 +1,8 @@
+Flask==2.3.3
+Flask-SocketIO==5.3.6
+TTS==0.22.0
+torch>=1.13.0
+PyPDF2==3.0.1
+Werkzeug==2.3.7
+python-socketio==5.8.0
+eventlet==0.33.3
