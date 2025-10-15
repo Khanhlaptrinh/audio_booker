@@ -24,6 +24,8 @@ class AudioBookApp {
         this.playBtn = document.getElementById('play-btn');
         this.pauseBtn = document.getElementById('pause-btn');
         this.stopBtn = document.getElementById('stop-btn');
+        this.homeBtn = document.getElementById('home-btn');
+        this.dialectLiveInputs = document.querySelectorAll('input[name="dialect-live"]');
         
         this.leftPage = document.getElementById('left-page');
         this.rightPage = document.getElementById('right-page');
@@ -32,6 +34,7 @@ class AudioBookApp {
         this.book = document.getElementById('book');
         
         this.audioPlayer = document.getElementById('audio-player');
+        this.pendingPageData = null;
     }
     
     setupEventListeners() {
@@ -48,10 +51,25 @@ class AudioBookApp {
         this.playBtn.addEventListener('click', () => this.startReading());
         this.pauseBtn.addEventListener('click', () => this.pauseReading());
         this.stopBtn.addEventListener('click', () => this.stopReading());
+        this.homeBtn.addEventListener('click', () => this.goHome());
+        this.dialectLiveInputs.forEach((el) => {
+            el.addEventListener('change', () => this.changeDialect(el.value));
+        });
         
         // Audio events
         this.audioPlayer.addEventListener('ended', () => this.onAudioEnded());
         this.audioPlayer.addEventListener('error', (e) => this.onAudioError(e));
+        this.audioPlayer.addEventListener('canplay', () => this.onAudioCanPlay());
+    }
+
+    changeDialect(dialect) {
+        if (!this.currentSession) return;
+        // Notify server to apply new dialect for next pages
+        this.socket.emit('change_dialect', {
+            session_id: this.currentSession,
+            dialect
+        });
+        this.showMessage(`Đã chuyển giọng: ${dialect}`, 'success');
     }
     
     initializeSocket() {
@@ -174,28 +192,33 @@ class AudioBookApp {
         this.currentPage = 0;
         this.updateProgress();
     }
+
+    goHome() {
+        // Stop audio and leave session
+        this.stopReading();
+        if (this.currentSession) {
+            try {
+                this.socket.emit('leave_session', { session_id: this.currentSession });
+                fetch(`/cancel/${this.currentSession}`).catch(() => {});
+            } catch (_) {}
+        }
+        this.currentSession = null;
+        // Reset UI
+        this.bookSection.style.display = 'none';
+        this.uploadSection.style.display = 'block';
+        // Clear texts
+        this.leftText.textContent = 'Nội dung trang trước...';
+        this.rightText.textContent = 'Nội dung trang hiện tại...';
+        this.bookTitle.textContent = 'Tên Truyện';
+        this.bookProgress.textContent = 'Trang 1 / 1';
+    }
     
     handleNewPage(data) {
         console.log('New page received:', data);
-        
-        // Update page content
-        this.rightText.textContent = data.text;
-        this.currentPage = data.page_number;
-        this.updateProgress();
-        
-        // Set audio source
+        // Defer UI update until audio can play to keep text strictly in sync
+        this.pendingPageData = data;
         this.audioPlayer.src = data.audio_url;
         this.audioPlayer.load();
-        
-        // Play audio
-        if (this.isPlaying) {
-            this.audioPlayer.play().catch(error => {
-                console.error('Error playing audio:', error);
-                this.showError('Error playing audio: ' + error.message);
-            });
-        }
-        
-        // Do not flip immediately; flip after audio ends
     }
     
     animatePageFlip() {
@@ -218,6 +241,24 @@ class AudioBookApp {
             this.socket.emit('page_finished', {
                 session_id: this.currentSession,
                 page_number: this.currentPage
+            });
+        }
+    }
+
+    onAudioCanPlay() {
+        // Apply pending page text exactly when audio is ready to start
+        if (!this.pendingPageData) return;
+        const data = this.pendingPageData;
+        this.pendingPageData = null;
+        // Update page content and progress now
+        this.rightText.textContent = data.text;
+        this.currentPage = data.page_number;
+        this.updateProgress();
+        // Start playback
+        if (this.isPlaying) {
+            this.audioPlayer.play().catch(error => {
+                console.error('Error playing audio:', error);
+                this.showError('Error playing audio: ' + error.message);
             });
         }
     }

@@ -53,29 +53,22 @@ class GoogleTTSEngine:
             print(f"Generating audio for: {processed_text[:50]}...")
             
             # Chia text thành các phần nhỏ (Google TTS có giới hạn)
-            if len(processed_text) > 200:
-                # Chia thành các câu
-                sentences = processed_text.split('.')
-                audio_files = []
-                
-                for i, sentence in enumerate(sentences):
-                    if sentence.strip():
-                        temp_file = f"temp_audio_{i}.wav"
-                        if self._generate_single_audio(sentence.strip(), temp_file):
-                            audio_files.append(temp_file)
-                
-                # Gộp các file audio
-                if audio_files:
-                    self._merge_audio_files(audio_files, output_path)
-                    # Xóa file tạm
-                    for temp_file in audio_files:
-                        try:
-                            os.unlink(temp_file)
-                        except:
-                            pass
-                    return True
-            else:
-                return self._generate_single_audio(processed_text, output_path)
+            chunks = self._split_text_into_chunks(processed_text, max_len=180)
+            if not chunks:
+                return False
+
+            # Tải từng chunk dưới dạng mp3 bytes và ghép nối lại
+            combined = bytearray()
+            for part in chunks:
+                mp3_bytes = self._fetch_tts_bytes(part)
+                if not mp3_bytes:
+                    return False
+                combined.extend(mp3_bytes)
+
+            # Ghi file kết quả (mp3)
+            with open(output_path, 'wb') as f:
+                f.write(combined)
+            return os.path.exists(output_path)
             
             return False
             
@@ -83,62 +76,55 @@ class GoogleTTSEngine:
             print(f"❌ Error generating audio: {e}")
             return False
     
-    def _generate_single_audio(self, text: str, output_path: str) -> bool:
-        """Tạo audio cho một đoạn text ngắn"""
+    def _fetch_tts_bytes(self, text: str) -> bytes:
+        """Lấy mp3 bytes cho một đoạn text ngắn"""
         try:
-            # Sử dụng Google TTS API
             params = {
                 'ie': 'UTF-8',
                 'q': text,
                 'tl': 'vi',  # Tiếng Việt
                 'client': 'tw-ob'
             }
-            
-            # Tạo URL với parameters
             url = self.base_url + '?' + urllib.parse.urlencode(params)
-            
-            # Tạo request với headers
             req = urllib.request.Request(url)
             req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
-            
-            # Gửi request
             with urllib.request.urlopen(req, timeout=10) as response:
                 if response.status == 200:
-                    with open(output_path, 'wb') as f:
-                        f.write(response.read())
-                    
-                    if os.path.exists(output_path):
-                        print(f"✅ Audio generated: {output_path}")
-                        return True
-            
-            return False
-            
+                    return response.read()
+            return b''
         except Exception as e:
-            print(f"❌ Error generating single audio: {e}")
-            return False
+            print(f"❌ Error fetching tts bytes: {e}")
+            return b''
+
+    def _split_text_into_chunks(self, text: str, max_len: int = 180) -> list:
+        """Chia text thành các phần <= max_len, cắt theo từ để tránh vỡ chữ"""
+        words = text.split()
+        chunks = []
+        current = []
+        current_len = 0
+        for w in words:
+            if current_len + len(w) + (1 if current else 0) > max_len:
+                chunks.append(' '.join(current))
+                current = [w]
+                current_len = len(w)
+            else:
+                current.append(w)
+                current_len += len(w) + (1 if current_len > 0 else 0)
+        if current:
+            chunks.append(' '.join(current))
+        return chunks
     
     def _merge_audio_files(self, audio_files: list, output_path: str):
-        """Gộp các file audio thành một file"""
+        """[Deprecated for MP3] Giữ lại để tương thích, không dùng cho MP3."""
         try:
-            import wave
-            
-            # Đọc file đầu tiên
-            with wave.open(audio_files[0], 'rb') as first_file:
-                params = first_file.getparams()
-                frames = first_file.readframes(first_file.getnframes())
-            
-            # Gộp các file còn lại
-            for audio_file in audio_files[1:]:
-                with wave.open(audio_file, 'rb') as file:
-                    frames += file.readframes(file.getnframes())
-            
-            # Ghi file kết quả
-            with wave.open(output_path, 'wb') as output_file:
-                output_file.setparams(params)
-                output_file.writeframes(frames)
-                
+            combined = bytearray()
+            for p in audio_files:
+                with open(p, 'rb') as f:
+                    combined.extend(f.read())
+            with open(output_path, 'wb') as out:
+                out.write(combined)
         except Exception as e:
-            print(f"❌ Error merging audio files: {e}")
+            print(f"❌ Error merging files: {e}")
     
     def speak_text(self, text: str, dialect: str = 'north') -> bool:
         """Đọc text trực tiếp (không lưu file)"""

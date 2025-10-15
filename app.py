@@ -209,6 +209,48 @@ def on_page_finished(data):
     _emit_page(session_id, next_index)
 
 
+@socketio.on('leave_session')
+def on_leave_session(data):
+    session_id = data.get('session_id')
+    if not session_id or session_id not in sessions:
+        return
+    # Best-effort cleanup is handled in /cancel
+    emit('left', {'session_id': session_id})
+
+
+@app.route('/cancel/<session_id>')
+def cancel_session(session_id: str):
+    session = sessions.pop(session_id, None)
+    if not session:
+        return jsonify({'success': True})
+    # Cleanup generated audio files for this session
+    try:
+        for root, _, files in os.walk(app.config['AUDIO_FOLDER']):
+            for name in files:
+                if name.startswith(f"{session_id}_page_"):
+                    try:
+                        os.remove(os.path.join(root, name))
+                    except Exception:
+                        pass
+    except Exception:
+        pass
+    return jsonify({'success': True})
+
+
+@socketio.on('change_dialect')
+def on_change_dialect(data):
+    session_id = data.get('session_id')
+    new_dialect = data.get('dialect')
+    if not session_id or session_id not in sessions:
+        emit('error', {'message': 'Invalid session'})
+        return
+    if new_dialect not in ['north', 'central', 'south']:
+        emit('error', {'message': 'Invalid dialect'})
+        return
+    sessions[session_id]['dialect'] = new_dialect
+    emit('dialect_changed', {'dialect': new_dialect})
+
+
 if __name__ == '__main__':
     # Prefer eventlet if available (as listed in requirements)
     try:
