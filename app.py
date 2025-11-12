@@ -256,8 +256,8 @@ if __name__ == '__main__':
     try:
         import eventlet
         import eventlet.wsgi  # noqa: F401
-        socketio.run(app, host='0.0.0.0', port=5000)
+        socketio.run(app, host='0.0.0.0', port=5001)
     except Exception:
-        socketio.run(app, host='0.0.0.0', port=5000)
+        socketio.run(app, host='0.0.0.0', port=5001)
 
 

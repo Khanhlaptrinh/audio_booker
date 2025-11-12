@@ -37,7 +37,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Truy cập: http://localhost:5000
+Truy cập: http://localhost:5001
 
 ## 📁 Cấu trúc dự án
 

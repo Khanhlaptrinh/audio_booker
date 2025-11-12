@@ -18,7 +18,7 @@ pip install -r requirements.txt
 REM Start the application
 echo.
 echo Starting web server...
-echo Open your browser and go to: http://localhost:5000
+echo Open your browser and go to: http://localhost:5001
 echo Press Ctrl+C to stop the server
 echo.
 
